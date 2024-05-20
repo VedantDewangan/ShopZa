@@ -5,8 +5,8 @@ const crypto = require("crypto");
 require("dotenv").config();
 
 var instance = new Razorpay({
-    key_id: "process.env.RAZORPAY_KEY_ID",
-    key_secret: "process.env.RAZORPAY_SECRET_ID",
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_SECRET_ID,
 });
 
 const registerUser = async (req, res) => {
@@ -367,7 +367,7 @@ const paymentVerification = async (req, res) => {
 
         const body_data = `${razorpay_order_id}|${razorpay_payment_id}`;
 
-        const secret = "process.env.RAZORPAY_SECRET_ID";
+        const secret = process.env.RAZORPAY_SECRET_ID;
         const expectedSignature = crypto.createHmac('sha256', secret).update(body_data).digest('hex');
 
         console.log('Expected Signature:', expectedSignature);
@@ -388,11 +388,12 @@ const paymentVerification = async (req, res) => {
                     }
                 }
             );
-
-            res.redirect(`http://localhost:5173/payment/success?payment_id=${razorpay_payment_id}`);
+            res.send("success")
+            // res.redirect(`http://localhost:5173/payment/success?payment_id=${razorpay_payment_id}`);
         } else {
             console.log('Payment verification failed');
-            res.redirect('http://localhost:5173/payment/failed');
+            res.send("failed")
+            // res.redirect('http://localhost:5173/payment/failed');
         }
     } catch (error) {
         console.error('Error verifying payment:', error);
