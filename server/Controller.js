@@ -134,8 +134,10 @@ const getRandomData = async (req, res) => {
     try {
         const a = await MensProduct.find().limit(9);
         const b = await WomensProduct.find().limit(11);
-        const c = [...a, ...b];
-        const shuffledArray = shuffleArray(c);
+        const c = await LatestProduct.find().limit(8);
+        const d = await SummerProduct.find().limit(12);
+        const e = [...a, ...b, ...c, ...d];
+        const shuffledArray = shuffleArray(e);
         res.send(shuffledArray);
     } catch (error) {
         console.log(error);
@@ -153,12 +155,20 @@ const getAllWishList = async (req, res) => {
 
             const mensProduct = await MensProduct.findOne({ _id: productID });
             const womensProduct = await WomensProduct.findOne({ _id: productID });
+            const LatestProducts = await LatestProduct.findOne({ _id: productID });
+            const SummerProducts = await SummerProduct.findOne({ _id: productID });
 
             if (mensProduct) {
                 wishListedProduct.push(mensProduct);
             }
             if (womensProduct) {
                 wishListedProduct.push(womensProduct);
+            }
+            if (SummerProducts) {
+                wishListedProduct.push(SummerProducts)
+            }
+            if (LatestProducts) {
+                wishListedProduct.push(LatestProducts)
             }
         }
 
@@ -229,7 +239,23 @@ const getProductDetails = async (req, res) => {
             const WProduct = await WomensProduct.find({
                 _id: productID
             })
-            res.send(WProduct)
+            if (WProduct.length === 0) {
+                const LProduct = await LatestProduct.find({
+                    _id: productID
+                })
+                if (LProduct.length === 0) {
+                    const SProduct = await SummerProduct.find({
+                        _id: productID
+                    })
+                    res.send(SProduct)
+                }
+                else {
+                    res.send(LProduct)
+                }
+            }
+            else {
+                res.send(WProduct)
+            }
         }
         else {
             res.send(MProduct);
